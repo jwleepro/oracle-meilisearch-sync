@@ -1,9 +1,4 @@
 # Build outputs
-bin/
-obj/
-*.dll
-*.exe
-*.pdb
 
 # IDE files
 .vs/
