@@ -118,9 +118,10 @@ Meilisearch를 검색 전용 엔진으로 도입하여 Oracle DB의 검색 부�
 
 | 영역 | 기술 |
 |------|------|
-| 검색 엔진 | Meilisearch |
-| 원본 DB | Oracle 11g |
-| 동기화 에이전트 | TBD (Go/Java/Python) |
+|데이터 파이프라인 | Python (python-oracledb)|
+|검색 엔진 | Meilisearch|
+|웹 서버 | Python (FastAPI)|
+|UI 렌더링 | Jinja2 Templates + Instant-meilisearch (JavaScript 라이브러리)|
 
 ---
 
