@@ -1,140 +1,243 @@
-# Plan: Oracle-Meilisearch Sync Agent (Phase 1)
+# Phase 01: Oracle-Meilisearch 동기화 시스템 개발 계획
 
-> TDD 방식으로 개발합니다. 각 테스트를 순서대로 구현하고, 완료 시 `[x]`로 마킹합니다.
+## 개요
 
----
+이 계획은 TDD(Test-Driven Development) 방식으로 Oracle-Meilisearch 동기화 시스템의 Phase 01을 구현합니다.
+각 테스트는 순서대로 구현되며, 테스트가 통과한 후에만 다음 단계로 진행합니다.
 
-## 0. 프로젝트 초기화
-
-- [ ] **T0.1**: Go 모듈 초기화 및 기본 프로젝트 구조 생성
-
----
-
-## 1. 설정 관리 (Config)
-
-- [ ] **T1.1**: `LoadConfig`가 환경변수에서 Oracle DSN을 읽어온다
-- [ ] **T1.2**: `LoadConfig`가 환경변수에서 Meilisearch URL을 읽어온다
-- [ ] **T1.3**: `LoadConfig`가 환경변수에서 Meilisearch API Key를 읽어온다
-- [ ] **T1.4**: `LoadConfig`가 필수 설정 누락 시 에러를 반환한다
-- [ ] **T1.5**: `LoadConfig`가 폴링 주기 기본값(3초)을 설정한다
-- [ ] **T1.6**: `LoadConfig`가 배치 크기 기본값(1000)을 설정한다
+**기술 스택**: Python (python-oracledb, FastAPI, Jinja2)
 
 ---
 
-## 2. Oracle 연결 (Repository)
+## 1. 프로젝트 설정
 
-- [ ] **T2.1**: `OracleRepository`가 연결 문자열로 Oracle에 연결한다
-- [ ] **T2.2**: `OracleRepository.Ping`이 연결 상태를 확인한다
-- [ ] **T2.3**: `OracleRepository.Close`가 연결을 정상 종료한다
+### 1.1 개발 환경 구성
 
----
-
-## 3. Meilisearch 연결 (Client)
-
-- [ ] **T3.1**: `MeilisearchClient`가 URL과 API Key로 클라이언트를 생성한다
-- [ ] **T3.2**: `MeilisearchClient.Health`가 Meilisearch 상태를 확인한다
-- [ ] **T3.3**: `MeilisearchClient.CreateIndex`가 인덱스를 생성한다
-- [ ] **T3.4**: `MeilisearchClient.CreateIndex`가 이미 존재하는 인덱스에 대해 에러 없이 처리한다
+- [ ] **TEST: 프로젝트 구조가 올바르게 생성됨**
+  - src/, tests/ 디렉토리 생성
+  - pyproject.toml 또는 requirements.txt 설정
+  - pytest 설정 확인
 
 ---
 
-## 4. 데이터 조회 (Oracle → 도메인 모델)
+## 2. Oracle DB 연결 (FR-101 준비)
 
-- [ ] **T4.1**: `OracleRepository.FetchAll`이 CRASIVTTST 테이블의 모든 레코드를 조회한다
-- [ ] **T4.2**: `OracleRepository.FetchAll`이 배치 크기 단위로 레코드를 반환한다
-- [ ] **T4.3**: `OracleRepository.FetchUpdatedSince`가 특정 시간 이후 변경된 레코드를 조회한다
-- [ ] **T4.4**: `OracleRepository.FetchUpdatedSince`가 빈 결과에 대해 빈 슬라이스를 반환한다
+### 2.1 DB 연결 설정
 
----
+- [ ] **TEST: Oracle DB 연결 설정을 로드할 수 있음**
+  - 환경 변수 또는 설정 파일에서 연결 정보 로드
+  - 연결 정보 누락 시 적절한 예외 발생
 
-## 5. Full Sync (FR-01)
+- [ ] **TEST: Oracle DB에 연결할 수 있음**
+  - python-oracledb를 사용한 연결 테스트
+  - 연결 실패 시 적절한 예외 처리
 
-- [ ] **T5.1**: `SyncService.FullSync`가 Oracle의 모든 데이터를 Meilisearch에 색인한다
-- [ ] **T5.2**: `SyncService.FullSync`가 배치 단위로 데이터를 전송한다
-- [ ] **T5.3**: `SyncService.FullSync`가 진행 상황을 로깅한다
-- [ ] **T5.4**: `SyncService.FullSync`가 실패 시 에러를 반환한다
-
----
-
-## 6. Incremental Sync (FR-02)
-
-- [ ] **T6.1**: `SyncService.IncrementalSync`가 마지막 동기화 시점 이후 변경된 데이터를 동기화한다
-- [ ] **T6.2**: `SyncService.IncrementalSync`가 마지막 동기화 시점을 저장한다
-- [ ] **T6.3**: `SyncService.IncrementalSync`가 변경된 레코드가 없으면 아무 작업도 하지 않는다
+- [ ] **TEST: Oracle DB 연결을 안전하게 종료할 수 있음**
+  - 컨텍스트 매니저 패턴 사용
+  - 리소스 누수 방지
 
 ---
 
-## 7. Soft Delete 동기화 (FR-05)
+## 3. Meilisearch 연결
 
-- [ ] **T7.1**: `OracleRepository.FetchDeletedSince`가 삭제 플래그가 설정된 레코드를 조회한다
-- [ ] **T7.2**: `SyncService.SyncDeletes`가 삭제된 레코드를 Meilisearch에서 제거한다
-- [ ] **T7.3**: `SyncService.IncrementalSync`가 삭제 동기화를 포함한다
+### 3.1 Meilisearch 클라이언트 설정
 
----
+- [ ] **TEST: Meilisearch 연결 설정을 로드할 수 있음**
+  - 호스트, API 키 등 설정 로드
+  - 설정 누락 시 적절한 예외 발생
 
-## 8. Meilisearch 문서 관리
+- [ ] **TEST: Meilisearch에 연결할 수 있음**
+  - 헬스 체크 엔드포인트 확인
+  - 연결 실패 시 적절한 예외 처리
 
-- [ ] **T8.1**: `MeilisearchClient.AddDocuments`가 문서 배열을 인덱스에 추가한다
-- [ ] **T8.2**: `MeilisearchClient.AddDocuments`가 기존 문서를 업데이트한다 (upsert)
-- [ ] **T8.3**: `MeilisearchClient.DeleteDocument`가 ID로 문서를 삭제한다
-- [ ] **T8.4**: `MeilisearchClient.DeleteDocuments`가 여러 ID로 문서들을 삭제한다
-
----
-
-## 9. 검색 기능 (FR-06, FR-08, FR-09)
-
-- [ ] **T9.1**: `SearchService.Search`가 키워드로 문서를 검색한다
-- [ ] **T9.2**: `SearchService.Search`가 필터 조건을 적용한다
-- [ ] **T9.3**: `SearchService.Search`가 정렬 조건을 적용한다
-- [ ] **T9.4**: `SearchService.Search`가 페이지네이션을 지원한다 (offset, limit)
-- [ ] **T9.5**: `SearchService.Search`가 총 결과 수를 반환한다
+- [ ] **TEST: Meilisearch 인덱스를 생성할 수 있음**
+  - 인덱스가 없으면 생성
+  - 이미 존재하면 기존 인덱스 사용
 
 ---
 
-## 10. 스케줄러 (Polling)
+## 4. 데이터 모델링
 
-- [ ] **T10.1**: `Scheduler`가 설정된 주기로 `IncrementalSync`를 실행한다
-- [ ] **T10.2**: `Scheduler`가 graceful shutdown을 지원한다
-- [ ] **T10.3**: `Scheduler`가 동기화 실패 시 다음 주기에 재시도한다
+### 4.1 CRASIVTTST 테이블 매핑
 
----
+- [ ] **TEST: Oracle 테이블 스키마를 조회할 수 있음**
+  - CRASIVTTST 테이블의 컬럼 정보 조회
+  - 데이터 타입 매핑
 
-## 11. 상태 관리
-
-- [ ] **T11.1**: `StateStore`가 마지막 동기화 시점을 파일에 저장한다
-- [ ] **T11.2**: `StateStore`가 마지막 동기화 시점을 파일에서 읽어온다
-- [ ] **T11.3**: `StateStore`가 파일이 없으면 zero time을 반환한다
-
----
-
-## 12. Health Check
-
-- [ ] **T12.1**: `HealthChecker`가 Oracle 연결 상태를 확인한다
-- [ ] **T12.2**: `HealthChecker`가 Meilisearch 연결 상태를 확인한다
-- [ ] **T12.3**: `HealthChecker`가 전체 상태를 JSON으로 반환한다
+- [ ] **TEST: Oracle 레코드를 Meilisearch 문서로 변환할 수 있음**
+  - 필드 매핑 정의
+  - Primary Key 설정
+  - 데이터 타입 변환 (날짜, 숫자 등)
 
 ---
 
-## 13. HTTP API (관리용)
+## 5. 전체 동기화 (FR-101: Full Sync)
 
-- [ ] **T13.1**: `GET /health`가 시스템 상태를 반환한다
-- [ ] **T13.2**: `POST /sync/full`이 Full Sync를 트리거한다
-- [ ] **T13.3**: `POST /sync/incremental`이 Incremental Sync를 트리거한다
-- [ ] **T13.4**: `GET /sync/status`가 마지막 동기화 상태를 반환한다
+### 5.1 데이터 조회
+
+- [ ] **TEST: Oracle에서 배치 단위로 데이터를 조회할 수 있음**
+  - 배치 크기 설정 (기본: 1000건)
+  - 커서 기반 페이지네이션
+  - 메모리 효율적인 조회
+
+- [ ] **TEST: 빈 테이블 조회 시 빈 결과를 반환함**
+  - 예외 발생하지 않음
+  - 빈 리스트 반환
+
+### 5.2 데이터 저장
+
+- [ ] **TEST: Meilisearch에 단일 문서를 저장할 수 있음**
+  - 문서 추가 확인
+  - 저장 후 조회 가능
+
+- [ ] **TEST: Meilisearch에 배치로 문서를 저장할 수 있음**
+  - 다수의 문서 일괄 저장
+  - 저장 결과 확인
+
+### 5.3 전체 동기화 프로세스
+
+- [ ] **TEST: 전체 동기화를 실행할 수 있음**
+  - Oracle에서 전체 데이터 조회
+  - Meilisearch에 저장
+  - 동기화 완료 확인
+
+- [ ] **TEST: 전체 동기화 시 기존 인덱스를 초기화할 수 있음**
+  - 옵션으로 기존 데이터 삭제
+  - 새 데이터로 교체
 
 ---
 
-## 14. 메인 애플리케이션
+## 6. 증분 동기화 (FR-102: Incremental Sync)
 
-- [ ] **T14.1**: `main`이 설정을 로드하고 의존성을 초기화한다
-- [ ] **T14.2**: `main`이 HTTP 서버와 스케줄러를 동시에 실행한다
-- [ ] **T14.3**: `main`이 SIGINT/SIGTERM에 graceful shutdown한다
+### 6.1 변경 감지
+
+- [ ] **TEST: 마지막 동기화 시점을 저장/조회할 수 있음**
+  - 동기화 시점 기록
+  - 재시작 시 마지막 시점부터 진행
+
+- [ ] **TEST: 특정 시점 이후 변경된 레코드를 조회할 수 있음**
+  - 수정 일시(MODIFIED_DATE) 기준 필터링
+  - 신규/수정 레코드 조회
+
+### 6.2 증분 동기화 프로세스
+
+- [ ] **TEST: 증분 동기화를 실행할 수 있음**
+  - 변경된 데이터만 조회
+  - Meilisearch 업데이트
+  - 동기화 시점 갱신
+
+- [ ] **TEST: 삭제된 레코드를 감지하고 동기화할 수 있음**
+  - 소프트 삭제 또는 삭제 로그 기반 감지
+  - Meilisearch에서 문서 삭제
 
 ---
 
-## 완료 기준
+## 7. 오류 처리 및 재시도 (FR-103)
 
-- 모든 테스트가 `[x]`로 마킹됨
-- `go test ./...` 통과
-- `go build` 성공
-- 린터 경고 없음
+### 7.1 재시도 메커니즘
+
+- [ ] **TEST: 일시적인 오류 발생 시 자동 재시도함**
+  - 네트워크 오류 등 일시적 오류
+  - 지수 백오프 적용
+  - 최대 재시도 횟수 설정
+
+- [ ] **TEST: 영구적인 오류 발생 시 적절히 실패 처리함**
+  - 재시도 횟수 초과 시
+  - 실패 레코드 기록
+
+### 7.2 부분 실패 처리
+
+- [ ] **TEST: 배치 중 일부 실패 시 나머지는 계속 진행함**
+  - 실패한 레코드 기록
+  - 성공한 레코드는 저장
+
+---
+
+## 8. 모니터링 및 로깅 (FR-104)
+
+### 8.1 동기화 상태 추적
+
+- [ ] **TEST: 동기화 진행 상태를 조회할 수 있음**
+  - 처리된 레코드 수
+  - 남은 레코드 수 (전체 동기화 시)
+  - 예상 완료 시간
+
+- [ ] **TEST: 동기화 히스토리를 조회할 수 있음**
+  - 동기화 시작/종료 시간
+  - 성공/실패 건수
+  - 오류 메시지
+
+### 8.2 로깅
+
+- [ ] **TEST: 동기화 이벤트가 적절히 로깅됨**
+  - 시작/종료 로그
+  - 오류 로그
+  - 성능 메트릭 로그
+
+---
+
+## 9. 스케줄러 (FR-302 선행 구현)
+
+### 9.1 자동 실행
+
+- [ ] **TEST: 주기적으로 증분 동기화를 실행할 수 있음**
+  - 설정 가능한 주기 (기본: 5분)
+  - 중복 실행 방지
+
+- [ ] **TEST: 스케줄러 시작/중지가 가능함**
+  - 그레이스풀 셧다운
+  - 실행 중인 동기화 완료 대기
+
+---
+
+## 10. CLI 인터페이스
+
+### 10.1 명령어
+
+- [ ] **TEST: CLI로 전체 동기화를 실행할 수 있음**
+  - `python -m sync full` 명령
+  - 진행 상황 출력
+
+- [ ] **TEST: CLI로 증분 동기화를 실행할 수 있음**
+  - `python -m sync incremental` 명령
+  - 결과 요약 출력
+
+- [ ] **TEST: CLI로 동기화 상태를 조회할 수 있음**
+  - `python -m sync status` 명령
+  - 현재 상태 및 히스토리 출력
+
+---
+
+## 비기능 요구사항 체크리스트
+
+### 성능 (NFR-101 ~ NFR-103)
+
+- [ ] 동기화 지연 시간 < 5초 (증분 동기화)
+- [ ] 배치 처리로 대용량 데이터 효율적 처리
+
+### 안정성 (NFR-104 ~ NFR-106)
+
+- [ ] 동기화 실패 시 자동 복구
+- [ ] 장애 발생 시 마지막 성공 시점부터 재개
+
+### 확장성 (NFR-107 ~ NFR-108)
+
+- [ ] 신규 테이블 추가 용이한 구조
+- [ ] 설정 기반 필드 매핑
+
+---
+
+## 진행 규칙
+
+1. 각 테스트는 **위에서 아래로 순서대로** 진행
+2. **[ ]** 를 **[x]** 로 변경하여 완료 표시
+3. 테스트가 통과하기 전에는 다음 테스트로 진행하지 않음
+4. 리팩토링은 모든 테스트가 통과한 후에만 진행
+5. 커밋은 구조적 변경과 동작적 변경을 분리
+
+---
+
+## 참고 문서
+
+- [PRD](docs/Phase%2001/prd.md)
+- [CLAUDE.md](CLAUDE.md) - TDD 및 개발 원칙
