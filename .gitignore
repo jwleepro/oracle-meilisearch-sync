@@ -8,7 +8,8 @@
 *.suo
 
 # MCP config file
-.serena/project.yml
+.serena/cache/
+.serena/memories/
 
 # NuGet
 packages/
