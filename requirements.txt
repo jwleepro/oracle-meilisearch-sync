@@ -1,0 +1,7 @@
+# Core dependencies
+oracledb>=3.0.0
+meilisearch>=0.31.0
+
+# Testing
+pytest>=8.0.0
+pytest-cov>=4.1.0

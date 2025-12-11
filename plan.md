@@ -13,27 +13,27 @@
 ## 1. 프로젝트 설정
 
 ### 1.1 개발 환경 설정
-- [ ] **TEST-001**: pytest 실행 확인 - 빈 테스트가 통과하는지 확인
-- [ ] **TEST-002**: python-oracledb 패키지 import 가능 확인
-- [ ] **TEST-003**: meilisearch 패키지 import 가능 확인
+- [x] **TEST-001**: pytest 실행 확인 - 빈 테스트가 통과하는지 확인
+- [x] **TEST-002**: python-oracledb 패키지 import 가능 확인
+- [x] **TEST-003**: meilisearch 패키지 import 가능 확인
 
 ---
 
 ## 2. 설정 관리 (Config)
 
 ### 2.1 환경 설정 로드
-- [ ] **TEST-010**: 환경 변수에서 Oracle 연결 정보(host, port, service_name, user, password) 로드
-- [ ] **TEST-011**: 환경 변수에서 Meilisearch 연결 정보(host, api_key) 로드
-- [ ] **TEST-012**: 필수 환경 변수 누락 시 명확한 에러 메시지 반환
-- [ ] **TEST-013**: 기본값 설정 (Meilisearch 기본 포트 7700 등)
+- [x] **TEST-010**: 환경 변수에서 Oracle 연결 정보(host, port, service_name, user, password) 로드
+- [x] **TEST-011**: 환경 변수에서 Meilisearch 연결 정보(host, api_key) 로드
+- [x] **TEST-012**: 필수 환경 변수 누락 시 명확한 에러 메시지 반환
+- [x] **TEST-013**: 기본값 설정 (Meilisearch 기본 포트 7700 등)
 
 ---
 
 ## 3. Oracle 데이터베이스 연결
 
 ### 3.1 연결 관리
-- [ ] **TEST-020**: Oracle DB 연결 객체 생성
-- [ ] **TEST-021**: Oracle DB 연결 성공 시 연결 객체 반환
+- [x] **TEST-020**: Oracle DB 연결 객체 생성
+- [x] **TEST-021**: Oracle DB 연결 성공 시 연결 객체 반환
 - [ ] **TEST-022**: Oracle DB 연결 실패 시 적절한 예외 발생
 - [ ] **TEST-023**: 연결 풀(Connection Pool) 생성 및 관리
 - [ ] **TEST-024**: 컨텍스트 매니저로 연결 자동 해제
