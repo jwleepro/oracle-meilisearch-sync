@@ -12,8 +12,14 @@ obj/
 *.sln.user
 *.suo
 
-# MCP config file
-.serena/project.yml
+# Claude directories
+.claude/
+
+# gemini directories
+.gemini/
+
+# MCP directories
+.serena/
 
 # NuGet
 packages/

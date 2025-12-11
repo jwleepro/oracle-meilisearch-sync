@@ -105,7 +105,6 @@ Meilisearch를 검색 전용 엔진으로 도입하여 Oracle DB의 검색 부�
 | 검색 엔진 | Meilisearch |
 | 원본 DB | Oracle 11g |
 | 동기화 에이전트 | TBD (Go/Java/Python) |
-| 배포 환경 | Docker / Kubernetes |
 
 ---
 
