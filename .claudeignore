@@ -65,7 +65,6 @@ env/
 
 # MCP config file
 .serena/cache/
-.serena/memories/
 
 # Environment variables
 .env

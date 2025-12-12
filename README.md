@@ -4,6 +4,25 @@ Oracle DB를 Meilisearch로 동기화하는 프로젝트
 ## 개요
 Oracle 11g 데이터베이스의 데이터를 Meilisearch 검색 엔진으로 동기화하여 빠르고 유연한 검색 경험을 제공합니다.
 
+## 설치
+
+### 요구사항
+- Python 3.8 이상
+- Oracle Database 11g 이상
+- Meilisearch 서버
+
+### 의존성 설치
+
+```bash
+pip install -r requirements.txt
+```
+
+**requirements.txt 내용:**
+```
+oracledb>=3.0.0
+meilisearch>=0.31.0
+```
+
 ## 설정 방법
 
 ### 환경 변수 설정
@@ -56,6 +75,136 @@ $env:MEILISEARCH_API_KEY="your-master-key"
 ```
 
 **참고**: 환경 변수가 설정되어 있으면 `.env` 파일보다 우선합니다.
+
+## 사용 방법
+
+### CLI 명령어
+
+이 프로젝트는 명령줄 인터페이스(CLI)를 제공합니다.
+
+#### 1. Full Sync (전체 동기화)
+
+Oracle 테이블의 모든 데이터를 Meilisearch로 동기화합니다.
+
+```bash
+python -m src.main full-sync --table USERS --primary-key ID
+```
+
+**옵션:**
+- `--table`: Oracle 테이블 이름 (필수)
+- `--primary-key`: 기본 키 컬럼 이름 (필수)
+- `--index`: Meilisearch 인덱스 이름 (선택, 기본값: 테이블 이름)
+- `--recreate`: 동기화 전에 인덱스 재생성
+- `--save-state`: 동기화 상태 저장
+- `--state-file`: 상태 파일 경로 (기본값: sync_state.json)
+
+**예시:**
+```bash
+# 기본 사용
+python -m src.main full-sync --table USERS --primary-key ID
+
+# 인덱스 재생성 옵션 사용
+python -m src.main full-sync --table USERS --primary-key ID --recreate
+
+# 사용자 정의 인덱스 이름
+python -m src.main full-sync --table USERS --primary-key ID --index my_users_index
+```
+
+#### 2. Incremental Sync (증분 동기화)
+
+마지막 동기화 이후 변경된 데이터만 동기화합니다.
+
+```bash
+python -m src.main incremental-sync --table USERS --primary-key ID --modified-column UPDATED_AT
+```
+
+**옵션:**
+- `--table`: Oracle 테이블 이름 (필수)
+- `--primary-key`: 기본 키 컬럼 이름 (필수)
+- `--modified-column`: 수정 시간 컬럼 이름 (필수)
+- `--index`: Meilisearch 인덱스 이름 (선택)
+- `--soft-delete-column`: Soft delete 플래그 컬럼 (선택)
+- `--state-file`: 상태 파일 경로 (기본값: sync_state.json)
+
+**예시:**
+```bash
+# 기본 사용
+python -m src.main incremental-sync --table USERS --primary-key ID --modified-column UPDATED_AT
+
+# Soft delete 처리 포함
+python -m src.main incremental-sync --table USERS --primary-key ID --modified-column UPDATED_AT --soft-delete-column IS_DELETED
+```
+
+#### 3. Scheduled Sync (스케줄 동기화)
+
+지정된 간격으로 자동으로 증분 동기화를 실행합니다.
+
+```bash
+python -m src.main schedule --table USERS --primary-key ID --modified-column UPDATED_AT --interval 300
+```
+
+**옵션:**
+- `--table`: Oracle 테이블 이름 (필수)
+- `--primary-key`: 기본 키 컬럼 이름 (필수)
+- `--modified-column`: 수정 시간 컬럼 이름 (필수)
+- `--interval`: 동기화 간격(초) (기본값: 300 = 5분)
+- `--index`: Meilisearch 인덱스 이름 (선택)
+- `--soft-delete-column`: Soft delete 플래그 컬럼 (선택)
+- `--state-file`: 상태 파일 경로 (기본값: sync_state.json)
+
+**예시:**
+```bash
+# 5분마다 동기화
+python -m src.main schedule --table USERS --primary-key ID --modified-column UPDATED_AT --interval 300
+
+# 1시간마다 동기화
+python -m src.main schedule --table USERS --primary-key ID --modified-column UPDATED_AT --interval 3600
+```
+
+**중지 방법:** `Ctrl+C` 키를 눌러 스케줄러를 중지합니다.
+
+#### 4. 추가 옵션
+
+모든 명령어에서 사용 가능한 글로벌 옵션:
+
+```bash
+# 사용자 정의 .env 파일 사용
+python -m src.main full-sync --table USERS --primary-key ID --env-file /path/to/.env
+
+# 로그 레벨 설정
+python -m src.main full-sync --table USERS --primary-key ID --log-level DEBUG
+
+# 도움말 보기
+python -m src.main --help
+python -m src.main full-sync --help
+```
+
+### 일반적인 사용 시나리오
+
+#### 시나리오 1: 초기 데이터 마이그레이션
+
+```bash
+# 1. 전체 동기화 수행 (인덱스 재생성)
+python -m src.main full-sync --table USERS --primary-key ID --recreate --save-state
+
+# 2. 동기화 상태 확인
+cat sync_state.json
+```
+
+#### 시나리오 2: 일일 배치 동기화
+
+```bash
+# Cron job 또는 Task Scheduler에 등록
+# 매일 새벽 2시에 증분 동기화 실행
+0 2 * * * cd /path/to/project && python -m src.main incremental-sync --table USERS --primary-key ID --modified-column UPDATED_AT
+```
+
+#### 시나리오 3: 실시간 동기화
+
+```bash
+# 백그라운드에서 5분마다 자동 동기화
+nohup python -m src.main schedule --table USERS --primary-key ID --modified-column UPDATED_AT --interval 300 > sync.log 2>&1 &
+```
 
 ## 테스트 실행
 
@@ -151,16 +300,26 @@ pytest tests/test_integration.py -m integration -v
 ```
 oracle-meilisearch-sync/
 ├── src/
+│   ├── main.py                # CLI 진입점 (NEW!)
 │   ├── oracle.py              # Oracle 연결 및 데이터 조회
 │   ├── meilisearch_client.py  # Meilisearch 클라이언트
 │   ├── sync_engine.py         # 동기화 엔진
+│   ├── scheduler.py           # 스케줄러
 │   └── config.py              # 설정 관리
 ├── tests/
+│   ├── test_setup.py          # 프로젝트 설정 테스트
+│   ├── test_config.py         # 설정 테스트
 │   ├── test_oracle.py         # Oracle 단위 테스트
 │   ├── test_meilisearch.py    # Meilisearch 단위 테스트
 │   ├── test_sync_engine.py    # 동기화 엔진 단위 테스트
+│   ├── test_logging.py        # 로깅 테스트
+│   ├── test_state_management.py  # 상태 관리 테스트
+│   ├── test_scheduler.py      # 스케줄러 테스트
 │   └── test_integration.py    # 통합 테스트
 ├── docs/
 │   └── Phase 01/
 │       └── prd.md            # 제품 요구사항 문서
-└── plan.md                   # TDD 테스트 계획
+├── .env.example              # 환경 변수 예제 파일
+├── requirements.txt          # Python 의존성
+├── plan.md                   # TDD 테스트 계획
+└── README.md                 # 프로젝트 문서
