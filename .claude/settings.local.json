@@ -1,7 +1,24 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__serena__read_file",
+      "mcp__serena__onboarding",
+      "mcp__serena__get_symbols_overview",
+      "mcp__serena__write_memory",
+      "mcp__serena__find_symbol",
+      "mcp__serena__insert_after_symbol",
+      "Bash(pytest:*)",
+      "mcp__serena__replace_content",
+      "mcp__serena__edit_memory",
+      "mcp__serena__create_text_file",
+      "Bash(python -m pytest:*)",
+      "mcp__serena__find_file",
+      "Bash(python:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "serena",
     "context7"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

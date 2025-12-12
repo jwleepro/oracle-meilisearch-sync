@@ -34,78 +34,78 @@
 ### 3.1 연결 관리
 - [x] **TEST-020**: Oracle DB 연결 객체 생성
 - [x] **TEST-021**: Oracle DB 연결 성공 시 연결 객체 반환
-- [ ] **TEST-022**: Oracle DB 연결 실패 시 적절한 예외 발생
-- [ ] **TEST-023**: 연결 풀(Connection Pool) 생성 및 관리
-- [ ] **TEST-024**: 컨텍스트 매니저로 연결 자동 해제
+- [x] **TEST-022**: Oracle DB 연결 실패 시 적절한 예외 발생
+- [x] **TEST-023**: 연결 풀(Connection Pool) 생성 및 관리
+- [x] **TEST-024**: 컨텍스트 매니저로 연결 자동 해제
 
 ### 3.2 데이터 조회
-- [ ] **TEST-030**: 단일 테이블에서 전체 레코드 조회
-- [ ] **TEST-031**: 조회 결과를 딕셔너리 리스트로 변환
-- [ ] **TEST-032**: 배치 단위로 데이터 조회 (cursor.fetchmany)
-- [ ] **TEST-033**: 마지막 수정 시간 기준 변경된 레코드만 조회 (Incremental)
-- [ ] **TEST-034**: NULL 값 처리
-- [ ] **TEST-035**: Oracle 날짜/시간 타입을 ISO 8601 문자열로 변환
+- [x] **TEST-030**: 단일 테이블에서 전체 레코드 조회
+- [x] **TEST-031**: 조회 결과를 딕셔너리 리스트로 변환
+- [x] **TEST-032**: 배치 단위로 데이터 조회 (cursor.fetchmany)
+- [x] **TEST-033**: 마지막 수정 시간 기준 변경된 레코드만 조회 (Incremental)
+- [x] **TEST-034**: NULL 값 처리
+- [x] **TEST-035**: Oracle 날짜/시간 타입을 ISO 8601 문자열로 변환
 
 ---
 
 ## 4. Meilisearch 연결
 
 ### 4.1 연결 관리
-- [ ] **TEST-040**: Meilisearch 클라이언트 생성
-- [ ] **TEST-041**: Meilisearch 서버 health check
-- [ ] **TEST-042**: Meilisearch 연결 실패 시 적절한 예외 발생
+- [x] **TEST-040**: Meilisearch 클라이언트 생성
+- [x] **TEST-041**: Meilisearch 서버 health check
+- [x] **TEST-042**: Meilisearch 연결 실패 시 적절한 예외 발생
 
 ### 4.2 인덱스 관리
-- [ ] **TEST-050**: 인덱스 존재 여부 확인
-- [ ] **TEST-051**: 인덱스 생성 (primary key 지정)
-- [ ] **TEST-052**: 인덱스 설정 업데이트 (searchable attributes, filterable attributes)
-- [ ] **TEST-053**: 인덱스 삭제
+- [x] **TEST-050**: 인덱스 존재 여부 확인
+- [x] **TEST-051**: 인덱스 생성 (primary key 지정)
+- [x] **TEST-052**: 인덱스 설정 업데이트 (searchable attributes, filterable attributes)
+- [x] **TEST-053**: 인덱스 삭제
 
 ### 4.3 문서 관리
-- [ ] **TEST-060**: 단일 문서 추가
-- [ ] **TEST-061**: 배치 문서 추가 (add_documents)
-- [ ] **TEST-062**: 문서 업데이트 (upsert 방식)
-- [ ] **TEST-063**: 문서 삭제
-- [ ] **TEST-064**: 작업 완료 대기 (wait_for_task)
+- [x] **TEST-060**: 단일 문서 추가
+- [x] **TEST-061**: 배치 문서 추가 (add_documents)
+- [x] **TEST-062**: 문서 업데이트 (upsert 방식)
+- [x] **TEST-063**: 문서 삭제
+- [x] **TEST-064**: 작업 완료 대기 (wait_for_task)
 
 ---
 
 ## 5. 동기화 엔진 (Sync Engine)
 
 ### 5.1 Full Sync (FR-101)
-- [ ] **TEST-070**: Oracle에서 전체 데이터 추출
-- [ ] **TEST-071**: 추출된 데이터를 Meilisearch 문서 형식으로 변환
-- [ ] **TEST-072**: Meilisearch에 배치 단위로 문서 삽입
-- [ ] **TEST-073**: Full Sync 완료 후 문서 수 일치 확인
-- [ ] **TEST-074**: Full Sync 전 기존 인덱스 처리 (삭제 후 재생성 옵션)
+- [x] **TEST-070**: Oracle에서 전체 데이터 추출
+- [x] **TEST-071**: 추출된 데이터를 Meilisearch 문서 형식으로 변환
+- [x] **TEST-072**: Meilisearch에 배치 단위로 문서 삽입
+- [x] **TEST-073**: Full Sync 완료 후 문서 수 일치 확인
+- [x] **TEST-074**: Full Sync 전 기존 인덱스 처리 (삭제 후 재생성 옵션)
 
 ### 5.2 Incremental Sync (FR-102)
-- [ ] **TEST-080**: 마지막 동기화 시점 저장 및 조회
-- [ ] **TEST-081**: 변경된 레코드만 추출 (수정 시간 기준)
-- [ ] **TEST-082**: 변경된 레코드 Meilisearch에 upsert
-- [ ] **TEST-083**: 삭제된 레코드 처리 (soft delete 플래그 기준)
-- [ ] **TEST-084**: Incremental Sync 후 동기화 시점 업데이트
+- [x] **TEST-080**: 마지막 동기화 시점 저장 및 조회
+- [x] **TEST-081**: 변경된 레코드만 추출 (수정 시간 기준)
+- [x] **TEST-082**: 변경된 레코드 Meilisearch에 upsert
+- [x] **TEST-083**: 삭제된 레코드 처리 (soft delete 플래그 기준)
+- [x] **TEST-084**: Incremental Sync 후 동기화 시점 업데이트
 
 ### 5.3 동기화 실패 처리 (FR-103)
-- [ ] **TEST-090**: 동기화 실패 시 재시도 (최대 3회)
-- [ ] **TEST-091**: 재시도 간 지수 백오프(exponential backoff) 적용
-- [ ] **TEST-092**: 최종 실패 시 에러 정보 기록
-- [ ] **TEST-093**: 부분 실패 시 실패한 배치 정보 기록
+- [x] **TEST-090**: 동기화 실패 시 재시도 (최대 3회)
+- [x] **TEST-091**: 재시도 간 지수 백오프(exponential backoff) 적용
+- [x] **TEST-092**: 최종 실패 시 에러 정보 기록
+- [x] **TEST-093**: 부분 실패 시 실패한 배치 정보 기록
 
 ---
 
 ## 6. 모니터링 및 로깅 (FR-104)
 
 ### 6.1 로깅
-- [ ] **TEST-100**: 동기화 시작/완료 로그 기록
-- [ ] **TEST-101**: 동기화 진행률 로그 (처리된 레코드 수)
-- [ ] **TEST-102**: 에러 발생 시 상세 로그 기록
-- [ ] **TEST-103**: 로그 레벨 설정 (DEBUG, INFO, WARNING, ERROR)
+- [x] **TEST-100**: 동기화 시작/완료 로그 기록
+- [x] **TEST-101**: 동기화 진행률 로그 (처리된 레코드 수)
+- [x] **TEST-102**: 에러 발생 시 상세 로그 기록
+- [x] **TEST-103**: 로그 레벨 설정 (DEBUG, INFO, WARNING, ERROR)
 
 ### 6.2 상태 관리
-- [ ] **TEST-110**: 동기화 상태 저장 (시작 시간, 종료 시간, 처리 건수)
-- [ ] **TEST-111**: 마지막 성공 동기화 정보 조회
-- [ ] **TEST-112**: 동기화 히스토리 조회
+- [x] **TEST-110**: 동기화 상태 저장 (시작 시간, 종료 시간, 처리 건수)
+- [x] **TEST-111**: 마지막 성공 동기화 정보 조회
+- [x] **TEST-112**: 동기화 히스토리 조회
 
 ---
 
