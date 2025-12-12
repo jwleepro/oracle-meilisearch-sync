@@ -4,6 +4,59 @@ Oracle DB를 Meilisearch로 동기화하는 프로젝트
 ## 개요
 Oracle 11g 데이터베이스의 데이터를 Meilisearch 검색 엔진으로 동기화하여 빠르고 유연한 검색 경험을 제공합니다.
 
+## 설정 방법
+
+### 환경 변수 설정
+
+프로젝트는 환경 변수 또는 `.env` 파일을 통해 설정을 로드합니다.
+
+#### Option 1: .env 파일 사용 (권장)
+
+1. `.env.example` 파일을 복사하여 `.env` 파일 생성:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. `.env` 파일을 편집하여 실제 값 입력:
+   ```bash
+   # Oracle Database Configuration
+   ORACLE_HOST=your-oracle-host.example.com
+   ORACLE_PORT=1521
+   ORACLE_SERVICE_NAME=XEPDB1
+   ORACLE_USER=your-username
+   ORACLE_PASSWORD=your-password
+
+   # Meilisearch Configuration
+   MEILISEARCH_HOST=http://localhost:7700
+   MEILISEARCH_API_KEY=your-master-key
+   ```
+
+3. 프로그램 실행 시 자동으로 `.env` 파일이 로드됩니다.
+
+#### Option 2: 환경 변수 직접 설정
+
+```bash
+# Linux/macOS
+export ORACLE_HOST=your-oracle-host.example.com
+export ORACLE_PORT=1521
+export ORACLE_SERVICE_NAME=XEPDB1
+export ORACLE_USER=your-username
+export ORACLE_PASSWORD=your-password
+export MEILISEARCH_HOST=http://localhost:7700
+export MEILISEARCH_API_KEY=your-master-key
+
+# Windows (PowerShell)
+$env:ORACLE_HOST="your-oracle-host.example.com"
+$env:ORACLE_PORT="1521"
+$env:ORACLE_SERVICE_NAME="XEPDB1"
+$env:ORACLE_USER="your-username"
+$env:ORACLE_PASSWORD="your-password"
+$env:MEILISEARCH_HOST="http://localhost:7700"
+$env:MEILISEARCH_API_KEY="your-master-key"
+```
+
+**참고**: 환경 변수가 설정되어 있으면 `.env` 파일보다 우선합니다.
+
 ## 테스트 실행
 
 ### 단위 테스트 (Unit Tests)

@@ -3,11 +3,44 @@
 환경 변수에서 Oracle 및 Meilisearch 연결 정보를 로드합니다.
 """
 import os
+from pathlib import Path
 
 
 class ConfigError(Exception):
     """설정 관련 에러"""
     pass
+
+
+def load_dotenv(dotenv_path=None):
+    """환경 변수 파일(.env)을 로드하여 os.environ에 설정합니다.
+    
+    Args:
+        dotenv_path: .env 파일 경로. None이면 현재 디렉토리의 .env 파일을 찾습니다.
+    
+    Returns:
+        bool: 로드 성공 여부
+    """
+    if dotenv_path is None:
+        dotenv_path = Path.cwd() / '.env'
+    else:
+        dotenv_path = Path(dotenv_path)
+    
+    if not dotenv_path.exists():
+        return False
+    
+    with open(dotenv_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            
+            if '=' in line:
+                key, value = line.split('=', 1)
+                key = key.strip()
+                value = value.strip()
+                os.environ[key] = value
+    
+    return True
 
 
 def get_oracle_config():
