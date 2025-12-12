@@ -162,6 +162,24 @@ class OracleConnection:
         
         return results
 
+    def execute(self, query, params=None):
+        """SQL 쿼리를 실행 (INSERT, UPDATE, DELETE, CREATE, DROP 등)
+
+        Args:
+            query (str): 실행할 SQL 쿼리
+            params (tuple, optional): 쿼리 파라미터
+
+        Returns:
+            None
+        """
+        cursor = self._connection.cursor()
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        self._connection.commit()
+        cursor.close()
+
 
 
 class OracleConnectionPool:

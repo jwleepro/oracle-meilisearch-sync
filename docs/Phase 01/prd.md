@@ -129,3 +129,5 @@ Meilisearch를 검색 전용 엔진으로 도입하여 Oracle DB의 검색 부�
 - Oracle 11g 버전 제약으로 인해 CDC(Change Data Capture) 기능 사용 불가
 - Meilisearch는 쓰기 작업에 최적화되지 않음 → 검색 전용으로 사용
 - 원본 데이터는 항상 Oracle에서 관리 (SSOT 원칙)
+- Oracle에 조회 권한만 부여됨. 
+- Oracle에 테이블이나 데이터 생성, 변경, 삭제는 금지됨

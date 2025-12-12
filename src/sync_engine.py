@@ -405,3 +405,42 @@ class SyncEngine:
             list: 동기화 히스토리 (시간순 정렬) 또는 빈 리스트
         """
         return self._sync_history.get(table_name, [])
+
+    def persist_sync_state(self, file_path='sync_state.json'):
+        """동기화 상태를 파일에 저장
+
+        Args:
+            file_path (str): 저장할 파일 경로 (기본값: 'sync_state.json')
+        """
+        import json
+        
+        # Convert datetime objects to ISO format strings
+        state_data = {}
+        for table_name, timestamp in self._last_sync_timestamps.items():
+            state_data[table_name] = timestamp.isoformat()
+        
+        # Write to file
+        with open(file_path, 'w') as f:
+            json.dump(state_data, f, indent=2)
+
+    def load_sync_state(self, file_path='sync_state.json'):
+        """파일에서 동기화 상태를 로드
+
+        Args:
+            file_path (str): 로드할 파일 경로 (기본값: 'sync_state.json')
+        """
+        import json
+        import os
+        from datetime import datetime
+        
+        # Check if file exists
+        if not os.path.exists(file_path):
+            return
+        
+        # Read from file
+        with open(file_path, 'r') as f:
+            state_data = json.load(f)
+        
+        # Convert ISO format strings back to datetime objects
+        for table_name, timestamp_str in state_data.items():
+            self._last_sync_timestamps[table_name] = datetime.fromisoformat(timestamp_str)

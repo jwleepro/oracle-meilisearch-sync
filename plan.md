@@ -109,12 +109,24 @@
 
 ---
 
-## 7. 통합 테스트
+## 7. 스케줄러 통합
+- [x] **TEST-120**: 주기적 Incremental Sync 실행
+- [x] **TEST-121**: Cron 표현식 파싱
 
-### 7.1 End-to-End 테스트
-- [ ] **TEST-120**: Oracle 테스트 데이터 → Meilisearch Full Sync → 검색 확인
-- [ ] **TEST-121**: Oracle 데이터 변경 → Incremental Sync → 변경 반영 확인
-- [ ] **TEST-122**: 대용량 데이터(10,000건) Full Sync 성능 테스트
+---  
+
+## 8. 통합 테스트
+
+### 8.1 End-to-End 테스트
+- [X] **TEST-130**: Oracle 테스트 데이터 → Meilisearch Full Sync → 검색 확인
+- [X] **TEST-131**: Oracle 데이터 생성 → Incremental Sync → 변경 반영 확인
+- [X] **TEST-132**: 대용량 데이터(10,000건) Full Sync 성능 테스트
+
+---
+
+## 9. 프로덕션 준비
+- [X] **TEST-140**: sync_state.json 파일로 시점 저장/로드
+- [ ] **TEST-141**: 환경 변수 미설정 시 .env 파일 읽기
 
 ---
 
@@ -136,4 +148,6 @@
 6. **TEST-080 ~ TEST-084**: Incremental Sync 구현
 7. **TEST-090 ~ TEST-093**: 에러 처리 및 재시도
 8. **TEST-100 ~ TEST-112**: 모니터링 및 로깅
-9. **TEST-120 ~ TEST-122**: 통합 테스트
+9. **TEST-120 ~ TEST-121**: 스케줄러 통합
+10. **TEST-130 ~ TEST-132**: 통합 테스트
+11. **TEST-140 ~ TEST-141**: 프로덕션 준비

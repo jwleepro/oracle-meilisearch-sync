@@ -125,3 +125,52 @@ def test_oracle_config_uses_default_port_when_not_set():
     # Cleanup
     for key in ["ORACLE_HOST", "ORACLE_PORT", "ORACLE_SERVICE_NAME", "ORACLE_USER", "ORACLE_PASSWORD"]:
         os.environ.pop(key, None)
+
+
+
+def test_load_config_from_dotenv_file_when_env_not_set():
+    """TEST-141: 환경 변수 미설정 시 .env 파일 읽기"""
+    import tempfile
+    import os
+    
+    # Arrange: Create a temporary .env file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.env', delete=False) as f:
+        f.write('ORACLE_HOST=dotenv-host\n')
+        f.write('ORACLE_PORT=1522\n')
+        f.write('ORACLE_SERVICE_NAME=dotenv-service\n')
+        f.write('ORACLE_USER=dotenv-user\n')
+        f.write('ORACLE_PASSWORD=dotenv-pass\n')
+        f.write('MEILISEARCH_HOST=http://dotenv-meilisearch:7700\n')
+        f.write('MEILISEARCH_API_KEY=dotenv-key\n')
+        dotenv_path = f.name
+    
+    # Clean up any existing environment variables
+    for key in ['ORACLE_HOST', 'ORACLE_PORT', 'ORACLE_SERVICE_NAME', 'ORACLE_USER', 'ORACLE_PASSWORD',
+                'MEILISEARCH_HOST', 'MEILISEARCH_API_KEY']:
+        os.environ.pop(key, None)
+    
+    try:
+        # Act: Load config from .env file
+        from src.config import load_dotenv, get_oracle_config, get_meilisearch_config
+        
+        load_dotenv(dotenv_path)
+        
+        oracle_config = get_oracle_config()
+        meilisearch_config = get_meilisearch_config()
+        
+        # Assert: Config should be loaded from .env file
+        assert oracle_config['host'] == 'dotenv-host'
+        assert oracle_config['port'] == 1522
+        assert oracle_config['service_name'] == 'dotenv-service'
+        assert oracle_config['user'] == 'dotenv-user'
+        assert oracle_config['password'] == 'dotenv-pass'
+        
+        assert meilisearch_config['host'] == 'http://dotenv-meilisearch:7700'
+        assert meilisearch_config['api_key'] == 'dotenv-key'
+        
+    finally:
+        # Cleanup
+        os.unlink(dotenv_path)
+        for key in ['ORACLE_HOST', 'ORACLE_PORT', 'ORACLE_SERVICE_NAME', 'ORACLE_USER', 'ORACLE_PASSWORD',
+                    'MEILISEARCH_HOST', 'MEILISEARCH_API_KEY']:
+            os.environ.pop(key, None)

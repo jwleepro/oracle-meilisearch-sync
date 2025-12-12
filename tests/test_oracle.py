@@ -524,3 +524,74 @@ def test_convert_datetime_to_iso8601():
         assert results[0]['CREATED_AT'] == '2024-01-15T10:30:45'
         assert results[1]['CREATED_AT'] == '2024-02-20T14:15:30'
         assert isinstance(results[0]['CREATED_AT'], str)
+
+
+
+def test_execute_sql_query():
+    """SQL 쿼리(INSERT, UPDATE, DELETE 등)를 실행할 수 있는지 확인"""
+    # Arrange
+    from src.oracle import OracleConnection
+    
+    config = {
+        "host": "localhost",
+        "port": 1521,
+        "service_name": "XEPDB1",
+        "user": "testuser",
+        "password": "testpass"
+    }
+    
+    # Act
+    with patch('oracledb.connect') as mock_connect:
+        mock_db_connection = MagicMock()
+        mock_cursor = MagicMock()
+        mock_db_connection.cursor.return_value = mock_cursor
+        
+        mock_connect.return_value = mock_db_connection
+        
+        conn = OracleConnection(config)
+        conn.connect()
+        
+        # Execute INSERT query
+        conn.execute("INSERT INTO users (id, name) VALUES (1, 'Alice')")
+        
+        # Assert: execute가 호출되고 commit이 실행되는지 확인
+        mock_cursor.execute.assert_called_once_with("INSERT INTO users (id, name) VALUES (1, 'Alice')")
+        mock_db_connection.commit.assert_called_once()
+        mock_cursor.close.assert_called_once()
+
+
+def test_execute_sql_query_with_parameters():
+    """파라미터와 함께 SQL 쿼리를 실행할 수 있는지 확인"""
+    # Arrange
+    from src.oracle import OracleConnection
+    
+    config = {
+        "host": "localhost",
+        "port": 1521,
+        "service_name": "XEPDB1",
+        "user": "testuser",
+        "password": "testpass"
+    }
+    
+    # Act
+    with patch('oracledb.connect') as mock_connect:
+        mock_db_connection = MagicMock()
+        mock_cursor = MagicMock()
+        mock_db_connection.cursor.return_value = mock_cursor
+        
+        mock_connect.return_value = mock_db_connection
+        
+        conn = OracleConnection(config)
+        conn.connect()
+        
+        # Execute INSERT query with parameters
+        params = (1, 'Alice', 'alice@example.com')
+        conn.execute("INSERT INTO users (id, name, email) VALUES (:1, :2, :3)", params)
+        
+        # Assert: execute가 파라미터와 함께 호출되고 commit이 실행되는지 확인
+        mock_cursor.execute.assert_called_once_with(
+            "INSERT INTO users (id, name, email) VALUES (:1, :2, :3)",
+            params
+        )
+        mock_db_connection.commit.assert_called_once()
+        mock_cursor.close.assert_called_once()

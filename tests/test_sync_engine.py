@@ -743,3 +743,122 @@ def test_log_failed_batch_info_on_partial_failure():
         assert 'Network error' in failed_batch['error']
         assert 'record_count' in failed_batch
         assert failed_batch['record_count'] == 3
+
+
+def test_full_sync_batch_with_recreate_index():
+    """TEST-093 (Additional): full_sync_batch()에서 recreate_index=True가 정상 작동하는지 확인
+    
+    This test verifies that the recreate_index parameter works correctly
+    in the full_sync_batch method, ensuring index deletion and recreation
+    happens before batch processing.
+    """
+    # Arrange
+    from src.sync_engine import SyncEngine
+    
+    oracle_config = {
+        "host": "localhost",
+        "port": 1521,
+        "service_name": "XEPDB1",
+        "user": "testuser",
+        "password": "testpass"
+    }
+    
+    meilisearch_config = {
+        "host": "http://localhost:7700",
+        "api_key": "test_api_key"
+    }
+    
+    # Act
+    with patch('src.sync_engine.OracleConnection') as MockOracleConnection, \
+         patch('src.sync_engine.MeilisearchClient') as MockMeilisearchClient:
+        
+        # Mock Oracle data extraction
+        mock_oracle_conn = MagicMock()
+        MockOracleConnection.return_value.__enter__.return_value = mock_oracle_conn
+        mock_oracle_conn.fetch_as_dict_with_iso_dates.return_value = [
+            {'ID': 1, 'NAME': 'Alice'},
+            {'ID': 2, 'NAME': 'Bob'},
+            {'ID': 3, 'NAME': 'Charlie'}
+        ]
+        
+        # Mock Meilisearch client
+        mock_client = MagicMock()
+        mock_index = MagicMock()
+        MockMeilisearchClient.return_value = mock_client
+        mock_client.get_client.return_value = None
+        mock_client.get_index.return_value = mock_index
+        mock_client.index_exists.return_value = True
+        mock_client.delete_index.return_value = {'taskUid': 456}
+        mock_client.create_index.return_value = {'taskUid': 789}
+        mock_index.add_documents.return_value = {'taskUid': 123}
+        
+        sync_engine = SyncEngine(oracle_config, meilisearch_config)
+        
+        # Act: Call full_sync_batch with recreate_index=True
+        result = sync_engine.full_sync_batch('users', primary_key='ID', batch_size=3, recreate_index=True)
+        
+        # Assert: Verify that index was recreated before batch processing
+        mock_client.index_exists.assert_called_once_with('users')
+        mock_client.delete_index.assert_called_once_with('users')
+        mock_client.create_index.assert_called_once_with('users', 'ID')
+        
+        # Assert: Verify sync result
+        assert result['success'] is True
+        assert result['total_records'] == 3
+        assert result['successful_records'] == 3
+        assert result['failed_batches'] == 0
+
+
+def test_save_and_load_sync_state_to_file():
+    """TEST-140: sync_state.json 파일로 시점 저장/로드"""
+    import os
+    import json
+    from src.sync_engine import SyncEngine
+    
+    # Arrange
+    oracle_config = {
+        "host": "localhost",
+        "port": 1521,
+        "service_name": "XEPDB1",
+        "user": "testuser",
+        "password": "testpass"
+    }
+    
+    meilisearch_config = {
+        "host": "http://localhost:7700",
+        "api_key": "test_api_key"
+    }
+    
+    sync_engine = SyncEngine(oracle_config, meilisearch_config)
+    
+    # Clean up any existing sync_state.json file
+    state_file = 'sync_state.json'
+    if os.path.exists(state_file):
+        os.remove(state_file)
+    
+    # Act: Save sync timestamp to file
+    test_timestamp = datetime(2024, 1, 15, 10, 30, 0)
+    sync_engine.save_last_sync_timestamp('users', test_timestamp)
+    sync_engine.persist_sync_state()  # Save to file
+    
+    # Assert: Verify file was created
+    assert os.path.exists(state_file)
+    
+    # Act: Create new sync engine and load from file
+    sync_engine2 = SyncEngine(oracle_config, meilisearch_config)
+    sync_engine2.load_sync_state()  # Load from file
+    
+    # Assert: Verify loaded timestamp matches saved timestamp
+    loaded_timestamp = sync_engine2.get_last_sync_timestamp('users')
+    assert loaded_timestamp == test_timestamp
+    
+    # Verify file contents
+    with open(state_file, 'r') as f:
+        state_data = json.load(f)
+    
+    assert 'users' in state_data
+    assert state_data['users'] == test_timestamp.isoformat()
+    
+    # Clean up
+    if os.path.exists(state_file):
+        os.remove(state_file)
